@@ -12,6 +12,10 @@ public class Enemy : MonoBehaviour {
 	public Bounds bounds;
 	public Vector3 boundsCenterOffset;
 
+	void Awake(){
+		InvokeRepeating ("CheckOffscreen", 0f, 2f);
+	}
+
 	void Update(){
 		Move ();
 	}
@@ -27,6 +31,21 @@ public class Enemy : MonoBehaviour {
 			return(this.transform.position);
 		}set{
 			this.transform.position = value;
+		}
+	}
+
+	void CheckOffscreen(){
+		if (bounds.size == Vector3.zero) {
+			bounds = Utils.CombineBoundsOfChildren (this.gameObject);
+			boundsCenterOffset = bounds.center - transform.position;
+		}
+
+		bounds.center = transform.position + boundsCenterOffset;
+		Vector3 off = Utils.ScreenBoundsCheck (bounds, BoundsTest.offScreen);
+		if (off != Vector3.zero) {
+			if (off.y < 0) {
+				Destroy (this.gameObject);
+			}
 		}
 	}
 
