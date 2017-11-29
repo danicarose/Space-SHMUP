@@ -17,6 +17,11 @@ public class Hero : MonoBehaviour {
 	public bool	_____________________;
 	public Bounds bounds;
 
+	//
+	public delegate void WeaponFireDelegate();
+	//
+	public WeaponFireDelegate fireDelegate;
+
 	void Awake(){
 		S = this;
 		bounds = Utils.CombineBoundsOfChildren (this.gameObject);
