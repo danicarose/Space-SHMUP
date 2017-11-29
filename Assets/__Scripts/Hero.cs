@@ -46,5 +46,34 @@ public class Hero : MonoBehaviour {
 		
 		// rotate the ship to make it feel more dynamic
 		transform.rotation =Quaternion.Euler(yAxis*pitchMult, xAxis*rollMult,0);
+	}//end Update();
+
+	//This variable holds a reference to the last triggering GameObject
+	public GameObject lastTriggerGo = null;
+
+	void OnTriggerEnter(Collider other){
+		//Find the tag of other.gameObject or its parent GameObjects
+		GameObject go = Utils.FindTaggedParent(other.gameObject);
+		//If there is a parent with a tag
+		if (go != null) {
+			//Make sure it's not the same triggering go as last time
+			if (go == lastTriggerGo) {
+				return;
+			}
+			lastTriggerGo = go;
+
+			if (go.tag == "Enemy") {
+				//If the shield was triggered by an ememy
+				//Decrease the level of the shield by 1 
+				shieldLevel--;
+				//Destroy the enemy
+				Destroy (go);
+			} else {
+				print ("Triggered: " + go.name);
+			}
+		} else {
+			print ("Triggered: " + other.gameObject.name); //does this still need to be here
+		}
+
 	}
 }
