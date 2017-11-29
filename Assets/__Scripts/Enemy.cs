@@ -49,4 +49,27 @@ public class Enemy : MonoBehaviour {
 		}
 	}
 
+	void OnCollisionEnter(Collision coll){
+		GameObject other = coll.gameObject;
+		switch (other.tag) {
+		case "ProjectileHero":
+			Projectile p = other.GetComponent<Projectile> ();
+			//
+			//
+			bounds.center = transform.position + boundsCenterOffset;
+			if (bounds.extents == Vector3.zero || Utils.ScreenBoundsCheck (bounds, BoundsTest.offScreen) != Vector3.zero) {
+				Destroy (other);
+				break;
+			}
+			//
+			//
+			health -= Main.W_DEFS [p.type].damageOnHit;
+			if (health <= 0) {
+				Destroy (this.gameObject);
+			}
+			Destroy (other);
+			break;
+		}
+	}
+
 }
