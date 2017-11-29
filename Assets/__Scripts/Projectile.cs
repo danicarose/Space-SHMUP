@@ -22,11 +22,11 @@ public class Projectile : MonoBehaviour {
 	public void SetType(WeaponType eType){
 		_type = eType;
 		WeaponDefinition def = Main.GetWeaponDefinition (_type);
-		renderer.material.color = def.projectileColor;
+		GetComponent<Renderer>().GetComponent<Material>().color = def.projectileColor; //outdated in textbook
 	}
 
 	void CheckOffscreen(){
-		if (Utils.ScreenBoundsCheck (collider.bounds, BoundsTest.offScreen) != Vector3.zero) {
+		if (Utils.ScreenBoundsCheck (GetComponent<Collider>().GetComponent<Bounds>(), BoundsTest.offScreen) != Vector3.zero) { //outdated in textbook
 			Destroy (this.gameObject);
 		}
 	}
