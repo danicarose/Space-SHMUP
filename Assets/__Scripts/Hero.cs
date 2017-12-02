@@ -3,16 +3,19 @@ using System.Collections;
 
 public class Hero : MonoBehaviour {
 
-	static public Hero		S;
+    static public Hero S;
 
-	public float gameRestartDelay = 2f;
+    public float gameRestartDelay = 2f;
 
-	public float	speed = 30;
-	public float	rollMult = -45;
-	public float  	pitchMult=30;
+    public float speed = 30;
+    public float rollMult = -45;
+    public float pitchMult = 30;
 
-	[SerializeField]
-	private float _shieldLevel = 1;
+    [SerializeField]
+    private float _shieldLevel = 1;
+
+    //Weapon fields
+    public Weapon[] weapons;
 
 	public bool	_____________________;
 	public Bounds bounds;
@@ -27,14 +30,15 @@ public class Hero : MonoBehaviour {
 		bounds = Utils.CombineBoundsOfChildren (this.gameObject);
 	}
 
+    private void Start()
+    {
+        //Reset the weapons to start _Hero with 1 blaster
+        ClearWeapons();
+        weapons[0].SetType(WeaponType.blaster);
+    }
 
-	// Use this for initialization
-	void Start () {
-	
-	}
-	
-	// Update is called once per frame
-	void Update () {
+    // Update is called once per frame
+    void Update () {
 		float xAxis = Input.GetAxis("Horizontal");
 		float yAxis = Input.GetAxis("Vertical");
 
@@ -70,20 +74,76 @@ public class Hero : MonoBehaviour {
 			}
 			lastTriggerGo = go;
 
-			if (go.tag == "Enemy") {
-				//If the shield was triggered by an ememy
-				//Decrease the level of the shield by 1 
-				shieldLevel--;
-				//Destroy the enemy
-				Destroy (go);
-			} else {
-				print ("Triggered: " + go.name);
-			}
+            if (go.tag == "Enemy")
+            {
+                //If the shield was triggered by an ememy
+                //Decrease the level of the shield by 1 
+                shieldLevel--;
+                //Destroy the enemy
+                Destroy(go);
+            }
+            else if (go.tag == "PowerUp")
+            {
+                //If the shielf was triggered by a PowerUp
+                AbsorbPowerUp(go);
+            }
+            else
+            {
+                print("Triggered: " + go.name);
+            }
 		} else {
 			print ("Triggered: " + other.gameObject.name); //does this still need to be here
 		}
 
 	}
+
+    public void AbsorbPowerUp(GameObject go)
+    {
+        PowerUp pu = go.GetComponent<PowerUp>();
+        switch (pu.type)
+        {
+            case WeaponType.shield:
+                shieldLevel++;
+                break;
+            default: //If it's any Weapon PowerUp
+                if(pu.type == weapons[0].type)
+                {
+                    //
+                    Weapon w = GetEmptyWeaponSlot();
+                    if(w != null)
+                    {
+                        w.SetType(pu.type);
+                    }
+                }
+                else
+                {
+                    ClearWeapons();
+                    weapons[0].SetType(pu.type);
+                }
+                break;
+        }
+        pu.AbsorbedBy(this.gameObject);
+    }
+
+    Weapon GetEmptyWeaponSlot()
+    {
+        for (int i = 0; i < weapons.Length; i++)
+        {
+            if (weapons[i].type == WeaponType.none)
+            {
+                return (weapons[i]);
+            }
+        }
+        return (null);
+    }
+
+    void ClearWeapons()
+    {
+        foreach(Weapon w in weapons)
+        {
+            w.SetType(WeaponType.none);
+        }
+    }
 
 	public float shieldLevel{
 		get{

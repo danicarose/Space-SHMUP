@@ -74,7 +74,7 @@ public class Weapon : MonoBehaviour {
 			this.gameObject.SetActive (true);
 		}
 		def = Main.GetWeaponDefinition (_type);
-		collar.GetComponent<Renderer>().GetComponent<Material>().color = def.color; //doing the stupid renderer.material thing
+		collar.GetComponent<Renderer>().material.color = def.color; //doing the stupid renderer.material thing
 		lastShot = 0;
 	}
 
