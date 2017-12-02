@@ -3,19 +3,24 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class Main : MonoBehaviour {
-	static public Main S;
-	static public Dictionary<WeaponType, WeaponDefinition> W_DEFS;
+    static public Main S;
+    static public Dictionary<WeaponType, WeaponDefinition> W_DEFS;
 
-	public GameObject[] prefabEnemies;
-	public float enemySpawnPerSecond = 0.5f;
-	public float enemySpawnPadding = 1.5f;
-	public WeaponDefinition[] weaponDefinitions;
+    public GameObject[] prefabEnemies;
+    public float enemySpawnPerSecond = 0.5f;
+    public float enemySpawnPadding = 1.5f;
+    public WeaponDefinition[] weaponDefinitions;
+    public GameObject prefabPowerUp;
+    public WeaponType[] powerUpFrequency = new WeaponType[]
+    {
+        WeaponType.blaster, WeaponType.blaster, WeaponType.spread, WeaponType.shield
+    };
 
 
-	public bool _______________;
+    public bool _______________;
 
-	public WeaponType[] activeWeaponTypes;
-	public float enemySpawnRate;
+    public WeaponType[] activeWeaponTypes;
+    public float enemySpawnRate;
 
 	void Awake(){
 		S = this;
@@ -63,6 +68,8 @@ public class Main : MonoBehaviour {
 		Invoke ("SpawnEnemy", enemySpawnRate);
 	}
 
+
+
 	public void DelayedRestart(float delay){
 		//Invoke the Restart() method in delay seconds
 		Invoke("Restart", delay);
@@ -72,5 +79,31 @@ public class Main : MonoBehaviour {
 		//Reload _Scene_0 to restart the game
 		Application.LoadLevel("_Scene_0");
 	}
+
+    public void ShipDestroyed(Enemy e)
+    {
+        //Potentially generate a PowerUp
+        if (Random.value <= e.powerUpDropChance)
+        {
+            //
+            //
+            //
+            //
+
+            //
+            //
+            int ndx = Random.Range(0, powerUpFrequency.Length);
+            WeaponType puType = powerUpFrequency[ndx];
+
+            //Spawn a PowerUp
+            GameObject go = Instantiate(prefabPowerUp) as GameObject;
+            PowerUp pu = go.GetComponent<PowerUp>();
+            //
+            pu.SetType(puType);
+
+            //
+            pu.transform.position = e.transform.position;
+        }
+    }
 
 }
