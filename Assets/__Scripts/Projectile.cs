@@ -22,7 +22,7 @@ public class Projectile : MonoBehaviour {
 	public void SetType(WeaponType eType){
 		_type = eType;
 		WeaponDefinition def = Main.GetWeaponDefinition (_type);
-		GetComponent<Renderer>().GetComponent<Material>().color = def.projectileColor; //outdated in textbook
+		GetComponent<Renderer>().material.color = def.projectileColor; //outdated in textbook
 	}
 
 	void CheckOffscreen(){
