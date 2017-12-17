@@ -1,112 +1,79 @@
 ﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class PowerUp : MonoBehaviour {
-    //
-    //
-    public Vector2 rotMinMax = new Vector2(15, 90);
-    public Vector2 driftMinMax = new Vector2(.25f, 2);
-    public float lifeTime = 6f;
-    public float fadeTime = 4f;
-    public bool ________________;
-    public WeaponType type;
-    public GameObject cube;
-    public TextMesh letter;
-    public Vector3 rotPerSecond;
-    public float birthTime;
 
-    void Awake()
-    {
-        //
-        cube = transform.Find("Cube").gameObject;
-        //
-        letter = GetComponent<TextMesh>();
+	public Vector2 rotMinMax = new Vector2(15,90);
+	public Vector2 driftMinMax = new Vector2(.25f, 2);
+	public float lifeTime = 6f;
+	public float fadeTime = 4f;
 
-        //
-        Vector3 vel = Random.onUnitSphere;
-        //
-        //
-        vel.z = 0;
-        vel.Normalize();
-        //
-        vel *= Random.Range(driftMinMax.x, driftMinMax.y);
-        //
-        //
-        GetComponent<Rigidbody>().velocity = vel;
+	public WeaponType type;
+	public GameObject cube;
+	public TextMesh letter;
+	public Vector3 rotPerSecond;
+	public float birthTime;
 
-        //
-        transform.rotation = Quaternion.identity;
-        //
+	void Awake(){
+		cube = transform.Find ("Cube").gameObject;
+		letter = GetComponent<TextMesh> ();
 
-        //
-        rotPerSecond = new Vector3(Random.Range(rotMinMax.x, rotMinMax.y), Random.Range(rotMinMax.x, rotMinMax.y), Random.Range(rotMinMax.x, rotMinMax.y));
+		Vector3 vel = Random.onUnitSphere;
+		vel.z = 0;
+		vel.Normalize ();
+		vel *= Random.Range (driftMinMax.x, driftMinMax.y);
+		GetComponent<Rigidbody>().velocity = vel;
 
-        //
-        InvokeRepeating("CheckOffscreen", 2f, 2f);
+		transform.rotation = Quaternion.identity;
 
-        birthTime = Time.time;
-   
-    }
+		rotPerSecond = new Vector3 (Random.Range (rotMinMax.x, rotMinMax.y),
+			Random.Range (rotMinMax.x, rotMinMax.y),
+			Random.Range (rotMinMax.x, rotMinMax.y));
 
-    void Update()
-    {
-        //
-        //
-        cube.transform.rotation = Quaternion.Euler(rotPerSecond * Time.time);
+		InvokeRepeating ("CheckOffscreen", 2f, 2f);
 
-        //
-        //
-        //
-        float u = (Time.time - (birthTime + lifeTime)) / fadeTime;
-        //
-        //
-        //
-        if(u >= 1)
-        {
-            Destroy(this.gameObject);
-            return;
-        }
-        //
-        if (u > 0)
-        {
-            Color c = cube.GetComponent<Renderer>().material.color;
-            c.a = 1f - u;
-            cube.GetComponent<Renderer>().material.color = c;
-            //
-            c = letter.color;
-            c.a = 1f - (u * 0.5f);
-            letter.color = c;
-        }
-    }
+		birthTime = Time.time;
+	}
+	
+	// Update is called once per frame
+	void Update () {
 
-    //This SetType() differs from those on Weapon and Projectile 
-    public void SetType(WeaponType wt)
-    {
-        //
-        WeaponDefinition def = Main.GetWeaponDefinition(wt);
-        //
-        cube.GetComponent<Renderer>().material.color = def.color;
-        //
-        letter.text = def.letter;
-        type = wt;
-    }
+		cube.transform.rotation = Quaternion.Euler (rotPerSecond * Time.time);
 
-    public void AbsorbedBy(GameObject target)
-    {
-        //
-        //
-        //
-        Destroy(this.gameObject);
-    }
+		float u = (Time.time - (birthTime + lifeTime)) / fadeTime;
 
-    void CheckOffscreen()
-    {
-        //
-        if(Utils.ScreenBoundsCheck(cube.GetComponent<Collider>().bounds, BoundsTest.offScreen) != Vector3.zero)
-        {
-            //
-            Destroy(this.gameObject);
-        }
-    }
+		if (u >= 1) {
+			Destroy (this.gameObject);
+			return;
+		}
 
+		if (u > 0) {
+			Color c = cube.GetComponent<Renderer> ().material.color;
+			c.a = 1f - u;
+			cube.GetComponent<Renderer> ().material.color = c;
+			c = letter.color;
+			c.a = 1f - (u * 0.5f);
+			letter.color = c;
+		}
+	}
+
+	public void SetType(WeaponType wt){
+		WeaponDefinition def = Main.GetWeaponDefinition (wt);
+		Renderer cubeRend = cube.GetComponent<Renderer> ();
+		cubeRend.material.color = def.color;
+		letter.text = def.letter;
+		type = wt;
+	}
+
+	public void AbsorbedBy(GameObject target){
+		Destroy (this.gameObject);
+	}
+
+	void CheckOffscreen(){
+		if (Utils.ScreenBoundsCheck (cube.GetComponent<Collider> ().bounds,
+			   BoundsTest.offScreen) != Vector3.zero) {
+			Destroy (this.gameObject);
+		}
+	}
 }

@@ -3,42 +3,37 @@ using System.Collections;
 
 public class Hero : MonoBehaviour {
 
-    static public Hero S;
+	static public Hero		S;
 
-    public float gameRestartDelay = 2f;
+	public float gameRestartDelay = 2f;
 
-    public float speed = 30;
-    public float rollMult = -45;
-    public float pitchMult = 30;
+	public Weapon[] weapons;
 
-    [SerializeField]
-    private float _shieldLevel = 1;
+	public float	speed = 30;
+	public float	rollMult = -45;
+	public float  	pitchMult=30;
 
-    //Weapon fields
-    public Weapon[] weapons;
+	[SerializeField]
+	private float	_shieldLevel=1;
 
 	public bool	_____________________;
 	public Bounds bounds;
 
-	//
-	public delegate void WeaponFireDelegate();
-	//
+	public delegate void WeaponFireDelegate ();
 	public WeaponFireDelegate fireDelegate;
+
+	public GameObject lastTriggerGo = null;
 
 	void Awake(){
 		S = this;
 		bounds = Utils.CombineBoundsOfChildren (this.gameObject);
+
+		ClearWeapons ();
+		weapons [0].SetType (WeaponType.blaster);
 	}
-
-    private void Start()
-    {
-        //Reset the weapons to start _Hero with 1 blaster
-        ClearWeapons();
-        weapons[0].SetType(WeaponType.blaster);
-    }
-
-    // Update is called once per frame
-    void Update () {
+	
+	// Update is called once per frame
+	void Update () {
 		float xAxis = Input.GetAxis("Horizontal");
 		float yAxis = Input.GetAxis("Vertical");
 
@@ -57,114 +52,83 @@ public class Hero : MonoBehaviour {
 		}
 		
 		// rotate the ship to make it feel more dynamic
-		transform.rotation =Quaternion.Euler(yAxis*pitchMult, xAxis*rollMult,0);
+		transform.rotation = Quaternion.Euler(yAxis*pitchMult, xAxis*rollMult,0);
 
-        //
-        //
-        //
-        if(Input.GetAxis("Jump") == 1 && fireDelegate != null)
-        {
-            fireDelegate();
-        }
-	}//end Update();
-
-	//This variable holds a reference to the last triggering GameObject
-	public GameObject lastTriggerGo = null;
+		if(Input.GetAxis("Jump") == 1 && fireDelegate != null){
+			fireDelegate ();
+		}
+	}
 
 	void OnTriggerEnter(Collider other){
-		//Find the tag of other.gameObject or its parent GameObjects
 		GameObject go = Utils.FindTaggedParent(other.gameObject);
-		//If there is a parent with a tag
 		if (go != null) {
-			//Make sure it's not the same triggering go as last time
 			if (go == lastTriggerGo) {
 				return;
 			}
 			lastTriggerGo = go;
-
-            if (go.tag == "Enemy")
-            {
-                //If the shield was triggered by an ememy
-                //Decrease the level of the shield by 1 
-                shieldLevel--;
-                //Destroy the enemy
-                Destroy(go);
-            }
-            else if (go.tag == "PowerUp")
-            {
-                //If the shielf was triggered by a PowerUp
-                AbsorbPowerUp(go);
-            }
-            else
-            {
-                print("Triggered: " + go.name);
-            }
+			if (go.tag == "Enemy") {
+				shieldLevel--;
+				Destroy (go);
+			} else if (go.tag == "PowerUp") {
+				AbsorbPowerUp (go);
+			} else {
+				print ("3. Triggered: " + go.name);
+			}
 		} else {
-			print ("Triggered: " + other.gameObject.name); //does this still need to be here
+			print ("4. Triggered: " + other.gameObject.name);
 		}
-
 	}
 
-    public void AbsorbPowerUp(GameObject go)
-    {
-        PowerUp pu = go.GetComponent<PowerUp>();
-        switch (pu.type)
-        {
-            case WeaponType.shield:
-                shieldLevel++;
-                break;
-            default: //If it's any Weapon PowerUp
-                if(pu.type == weapons[0].type)
-                {
-                    //
-                    Weapon w = GetEmptyWeaponSlot();
-                    if(w != null)
-                    {
-                        w.SetType(pu.type);
-                    }
-                }
-                else
-                {
-                    ClearWeapons();
-                    weapons[0].SetType(pu.type);
-                }
-                break;
-        }
-        pu.AbsorbedBy(this.gameObject);
-    }
+	public void AbsorbPowerUp(GameObject go){
+		PowerUp pu = go.GetComponent<PowerUp> ();
+		switch(pu.type){
+		case WeaponType.shield:
+			print ("Shielded");
+			shieldLevel++;
+			break;
 
-    Weapon GetEmptyWeaponSlot()
-    {
-        for (int i = 0; i < weapons.Length; i++)
-        {
-            if (weapons[i].type == WeaponType.none)
-            {
-                return (weapons[i]);
-            }
-        }
-        return (null);
-    }
+		default:
+			if(pu.type == weapons[0].type) {
+				print ("Weapons");
+				Weapon w = GetEmptyWeaponSlot();
+				if(w!=null){
+					w.SetType(pu.type);
+				}
+			}else{
+				ClearWeapons ();
+				weapons [0].SetType (pu.type);
+			}
+			break;
+		}
+		pu.AbsorbedBy (this.gameObject);
+	}
 
-    void ClearWeapons()
-    {
-        foreach(Weapon w in weapons)
-        {
-            w.SetType(WeaponType.none);
-        }
-    }
+	Weapon GetEmptyWeaponSlot(){
+		for(int i=0; i<weapons.Length; i++){
+			if(weapons[i].type == WeaponType.none){
+				return(weapons [i]);
+			}
+		}
+		return(null);
+	}
+			
+	void ClearWeapons(){
+		foreach (Weapon w in weapons) {
+			w.SetType(WeaponType.none);
+		}
+	}
 
-	public float shieldLevel{
-		get{
+	public float shieldLevel {
+		get {
 			return(_shieldLevel);
 		}
-		set{
+		set {
 			_shieldLevel = Mathf.Min (value, 4);
-			//If the shield is going to be set to less than zero
 			if (value < 0) {
-				Destroy(this.gameObject);
-				//Tell Main.S to restart teh game after a delay
-				Main.S.DelayedRestart(gameRestartDelay);
+				Destroy (this.gameObject);
+				Main.S.DelayedRestart (gameRestartDelay);
 			}
 		}
 	}
+
 }

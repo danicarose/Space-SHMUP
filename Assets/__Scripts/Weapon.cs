@@ -1,61 +1,50 @@
 ﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
-//
-//
-//
-public enum WeaponType{
-	none,
-	blaster,
-	spread,
-	phaser,
-	missile,
-	laser,
-	shield
+public enum WeaponType
+{
+    none,
+    blaster,
+    spread,
+    phaser,
+    missile,
+    laser,
+    shield
 }
 
-//
-//
-//
-//
-//
-//
 [System.Serializable]
-public class WeaponDefinition{
-	public WeaponType type = WeaponType.none;
-	public string letter;
-	public Color color = Color.white;
-	public GameObject projectilePrefab;
-	public Color projectileColor = Color.white;
-	public float damageOnHit = 0;
-	public float continuousDamage = 0;
-	public float delayBetweenShots = 0;
-	public float velocity = 20;
+public class WeaponDefinition
+{
+    public WeaponType type = WeaponType.none;
+    public string letter;
+    public Color color = Color.white;
+    public GameObject projectilePrefab;
+    public Color projectileColor = Color.white;
+    public float damageOnHit = 0;
+    public float continuousDamage = 0;
+    public float delayBetweenShots = 0;
+    public float velocity = 20;
 }
-
-
 public class Weapon : MonoBehaviour {
 	static public Transform PROJECTILE_ANCHOR;
 
-	public bool ___________________;
 	[SerializeField]
 	private WeaponType _type = WeaponType.none;
 	public WeaponDefinition def;
 	public GameObject collar;
 	public float lastShot;
 
-    void Awake()
-    {
-        collar = transform.Find("Collar").gameObject;
-    }
+	void Awake(){
+		collar = transform.Find ("Collar").gameObject;
+	}
 
-    void Start(){
-		
-
+	// Use this for initialization
+	void Start () {
 		SetType (_type);
 
 		if (PROJECTILE_ANCHOR == null) {
-			GameObject go = new GameObject ("_Projectile_Anchor");
+			GameObject go = new GameObject ("_Projectile_Anchor_");
 			PROJECTILE_ANCHOR = go.transform;
 		}
 
@@ -65,49 +54,49 @@ public class Weapon : MonoBehaviour {
 		}
 	}
 
-	public WeaponType type{
+	public WeaponType type {
 		get{ return(_type); }
 		set{ SetType (value); }
 	}
 
 	public void SetType(WeaponType wt){
 		_type = wt;
-		if (type == WeaponType.none) {
-			this.gameObject.SetActive (false);
+		if(type == WeaponType.none){
+			this.gameObject.SetActive(false);
 			return;
-		} else {
-			this.gameObject.SetActive (true);
+		} else{
+			this.gameObject.SetActive(true);
 		}
-		def = Main.GetWeaponDefinition (_type);
-		collar.GetComponent<Renderer>().material.color = def.color; //doing the stupid renderer.material thing
+		def = Main.GetWeaponDefinition(_type);
+		collar.GetComponent<Renderer>().material.color = def.color;
 		lastShot = 0;
 	}
 
 	public void Fire(){
-		if (!gameObject.activeInHierarchy)
+		if (!gameObject.activeInHierarchy) {
 			return;
-
+		}
 		if (Time.time - lastShot < def.delayBetweenShots) {
 			return;
 		}
 		Projectile p;
-		switch (type) {
+		switch(type){
 		case WeaponType.blaster:
 			p = MakeProjectile ();
-			p.GetComponent<Rigidbody>().velocity = Vector3.up * def.velocity;
+			p.GetComponent<Rigidbody> ().velocity = Vector3.up * def.velocity;
 			break;
 
 		case WeaponType.spread:
 			p = MakeProjectile ();
 			p.GetComponent<Rigidbody>().velocity = Vector3.up * def.velocity;
-			p = MakeProjectile ();
-			p.GetComponent<Rigidbody>().velocity = new Vector3 (-.2f, 0.9f, 0) * def.velocity;
-			p = MakeProjectile ();
-			p.GetComponent<Rigidbody>().velocity = new Vector3 (.2f, 0.9f, 0) * def.velocity;
-			break; 
+			p = MakeProjectile();
+			p.GetComponent<Rigidbody>().velocity = new Vector3(-.2f, 0.9f, 0.0f) * def.velocity;
+			p = MakeProjectile();
+			p.GetComponent<Rigidbody>().velocity = new Vector3(.2f, 0.9f, 0.0f) * def.velocity;
+			break;
 		}
 	}
-
+			
 	public Projectile MakeProjectile(){
 		GameObject go = Instantiate (def.projectilePrefab) as GameObject;
 		if (transform.parent.gameObject.tag == "Hero") {

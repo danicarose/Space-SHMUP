@@ -1,16 +1,16 @@
 ﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class Enemy : MonoBehaviour {
+
 	public float speed = 10f;
-	public float fireRate = 0.3f;
+	public float fireRate = .3f;
 	public float health = 10;
 	public int score = 100;
+	public float powerUpDropChance = 1f;
 
 	public int showDamageForFrames = 2;
-    public float powerUpDropChance = 1f;
-
-	public bool _______________;
 
 	public Color[] originalColors;
 	public Material[] materials;
@@ -25,18 +25,17 @@ public class Enemy : MonoBehaviour {
 		for (int i = 0; i < materials.Length; i++) {
 			originalColors [i] = materials [i].color;
 		}
-		InvokeRepeating ("CheckOffscreen", 0f, 2f);
+		InvokeRepeating ("CheckOffScreen", 0f, 2f);
 	}
 
-	void Update(){
+	void Update () {
 		Move ();
 		if (remainingDamageFrames > 0) {
 			remainingDamageFrames--;
-			if (remainingDamageFrames == 0) {
-				UnShowDamage ();
-			}
 		}
-
+		if (remainingDamageFrames == 0) {
+			UnShowDamage ();
+		}
 	}
 
 	public virtual void Move(){
@@ -48,12 +47,13 @@ public class Enemy : MonoBehaviour {
 	public Vector3 pos{
 		get{
 			return(this.transform.position);
-		}set{
+		}
+		set{
 			this.transform.position = value;
 		}
 	}
 
-	void CheckOffscreen(){
+	void CheckOffScreen(){
 		if (bounds.size == Vector3.zero) {
 			bounds = Utils.CombineBoundsOfChildren (this.gameObject);
 			boundsCenterOffset = bounds.center - transform.position;
@@ -61,36 +61,31 @@ public class Enemy : MonoBehaviour {
 
 		bounds.center = transform.position + boundsCenterOffset;
 		Vector3 off = Utils.ScreenBoundsCheck (bounds, BoundsTest.offScreen);
-		if (off != Vector3.zero) {
-			if (off.y < 0) {
-				Destroy (this.gameObject);
-			}
+
+		if (off.y < 0) {
+			Destroy (this.gameObject);
 		}
 	}
 
 	void OnCollisionEnter(Collision coll){
 		GameObject other = coll.gameObject;
-		switch (other.tag) {
+		switch(other.tag){
 		case "ProjectileHero":
 			Projectile p = other.GetComponent<Projectile> ();
-			//
-			//
 			bounds.center = transform.position + boundsCenterOffset;
-			if (bounds.extents == Vector3.zero || Utils.ScreenBoundsCheck (bounds, BoundsTest.offScreen) != Vector3.zero) {
+			if (bounds.extents == Vector3.zero || Utils.ScreenBoundsCheck (bounds,
+				    BoundsTest.offScreen) != Vector3.zero) {
 				Destroy (other);
 				break;
 			}
-			//
-			//
-			ShowDamage(); //DOES THIS GO HERE?!?!?
+			ShowDamage ();
 			health -= Main.W_DEFS [p.type].damageOnHit;
 			if (health <= 0) {
-                    //Tell the Main singleton that this ship has been destroyed 
-                    Main.S.ShipDestroyed(this); //this method found in Main
-                    //Destroy this Enemy
+				print ("Boom");
+				Main.S.ShipDestroyed (this);
 				Destroy (this.gameObject);
 			}
-			Destroy (other);
+			Destroy(other);
 			break;
 		}
 	}
@@ -103,9 +98,8 @@ public class Enemy : MonoBehaviour {
 	}
 
 	void UnShowDamage(){
-		for (int i = 0; i < materials.Length; i++) {
-			materials [i].color = originalColors [i];
+		for(int i=0; i<materials.Length; i++){
+			materials[i].color = originalColors[i];
 		}
 	}
-
 }
